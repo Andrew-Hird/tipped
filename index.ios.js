@@ -17,7 +17,7 @@ let entered = {
   price: '20',
   percentage: '18',
   tax: '4',
-  rate: '1.39'
+  conversionRate: '1.39'
 }
 
 export default class tipped extends Component {
@@ -55,13 +55,14 @@ export default class tipped extends Component {
 
   calc () {
     let totalPrice = 0
-    totalPrice = entered.price * (entered.percentage/ 100+1)
+    totalPrice = entered.price * (entered.percentage/100+1) * (entered.tax/100+1) * (entered.conversionRate)
     this.state = {
       price: entered.price,
       percentage: entered.percentage,
       tax: entered.tax,
       conversionRate: entered.conversionRate,
-      total: totalPrice }
+      total: totalPrice
+    }
     console.log(totalPrice)
   }
 
