@@ -1,20 +1,21 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
 import React, { Component } from 'react'
 import {
   AppRegistry,
   StyleSheet,
   Text,
   TextInput,
-  View
+  View,
+  TouchableWithoutFeedback
 } from 'react-native'
 
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+const dismissKeyboard = require('dismissKeyboard')
+
+
+
 let entered = {
-  price: '20',
+  price: '0',
   percentage: '18',
   tax: '4',
   conversionRate: '1.39'
@@ -24,11 +25,13 @@ export default class tipped extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      price: '20',
+      price: '0',
       percentage: '18',
       tax: '4',
       conversionRate: '1.39',
-      total: '34.30'
+      toTipUSD: '0',
+      totalNZD: '0',
+      totalUSD: '0'
     }
   }
 
@@ -54,96 +57,134 @@ export default class tipped extends Component {
   }
 
   calc () {
-    let totalPrice = 0
-    totalPrice = entered.price * (entered.percentage/100+1) * (entered.tax/100+1) * (entered.conversionRate)
+    let toTip = (entered.price * (entered.percentage/100)).toFixed(2)
+    let totalPriceNZD = (entered.price*(entered.percentage/100+1)*(entered.tax/100+1)*(entered.conversionRate)).toFixed(2)
+    let totalPriceUSD = (entered.price*(entered.percentage/100+1)*(entered.tax/100+1)).toFixed(2)
     this.state = {
       price: entered.price,
       percentage: entered.percentage,
       tax: entered.tax,
       conversionRate: entered.conversionRate,
-      total: totalPrice
+      toTipUSD: toTip,
+      totalNZD: totalPriceNZD,
+      totalUSD: totalPriceUSD
     }
-    console.log(totalPrice)
   }
 
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Tipped
-        </Text>
-        <Text>Enter price:</Text>
-        <TextInput
-          keyboardType='numeric'
-          style={styles.input}
-          onChangeText={(price) => {
-            this.setState({price})
-            this.enterPrice(price)
-          }}
-          value={this.state.price}
-        />
-        <Text>Enter tip percentage:</Text>
-        <TextInput
-          keyboardType='numeric'
-          style={styles.input}
-          onChangeText={(percentage) => {
-            this.setState({percentage})
-            this.enterPercentage(percentage)
-          }}
-          value={this.state.percentage}
-        />
-        <Text>Enter state tax:</Text>
-        <TextInput
-          keyboardType='numeric'
-          style={styles.input}
-          onChangeText={(tax) => {
-            this.setState({tax})
-            this.enterTax(tax)
-          }}
-          value={this.state.tax}
-        />
-        <Text>Enter conversion rate:</Text>
-        <TextInput
-          keyboardType='numeric'
-          style={styles.input}
-          onChangeText={(conversionRate) => {
-            this.setState({conversionRate})
-            this.enterRate(conversionRate)
-          }}
-          value={this.state.conversionRate}
-        />
-        <Text style={styles.total}>Total Price: ${this.state.total}</Text>
-      </View>
+      // <TouchableWithoutFeedback onPress={()=> dismissKeyboard()}>
+      <KeyboardAwareScrollView style={[styles.scrollView, styles.horizontalScrollView]}>
+        <View style={styles.container}>
+        <Text style={styles.title}>TIPPING IN AMERICA</Text>
+
+          <Text style={styles.total}>Tip USD: ${this.state.toTipUSD}</Text>
+          <Text style={styles.total}>Total USD: ${this.state.totalUSD}</Text>
+          <Text style={styles.total}>Total NZD: ${this.state.totalNZD}</Text>
+
+          <Text style={styles.heading}>Price:</Text>
+          <View style={styles.item}>
+            <Text style={styles.heading}>$</Text>
+            <TextInput
+              keyboardType='numeric'
+              style={styles.input}
+              onChangeText={(price) => {
+                this.setState({price})
+                this.enterPrice(price)
+              }}
+              value={this.state.price}
+            />
+            <Text style={styles.heading}>{'          '}</Text>
+          </View>
+
+          <Text style={styles.heading}>Tip percentage:</Text>
+          <View style={styles.item}>
+            <TextInput
+              keyboardType='numeric'
+              style={styles.input}
+              onChangeText={(percentage) => {
+                this.setState({percentage})
+                this.enterPercentage(percentage)
+              }}
+              value={this.state.percentage}
+            />
+            <Text style={styles.heading}>%</Text>
+          </View>
+
+          <Text style={styles.heading}>State tax:</Text>
+          <View style={styles.item}>
+            <TextInput
+              keyboardType='numeric'
+              style={styles.input}
+              onChangeText={(tax) => {
+                this.setState({tax})
+                this.enterTax(tax)
+              }}
+              value={this.state.tax}
+            />
+            <Text style={styles.heading}>%</Text>
+          </View>
+
+          <Text style={styles.heading}>Conversion rate:</Text>
+          <View style={styles.item}>
+            <TextInput
+              keyboardType='numeric'
+              style={styles.input}
+              onChangeText={(conversionRate) => {
+                this.setState({conversionRate})
+                this.enterRate(conversionRate)
+              }}
+              value={this.state.conversionRate}
+            />
+            <Text style={styles.heading}>%</Text>
+          </View>
+        </View>
+      </KeyboardAwareScrollView>
+      // </TouchableWithoutFeedback>
     )
   }
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    backgroundColor: 'steelblue',
+    height: 300,
+  },
+  horizontalScrollView: {
+    height: 120,
+  },
   container: {
+    marginTop: 20,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: 'steelblue',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+  heading: {
+    padding: 10,
+    fontSize: 15
   },
   input: {
     textAlign: 'center',
     height: 40,
+    width: 40,
+    fontSize: 15,
     borderColor: 'gray',
     borderWidth: 1
   },
   total: {
-    fontSize: 30
+    fontSize: 30,
+    margin: 5
+  },
+  item: {
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    flexDirection:'row'
+  },
+  title: {
+    fontSize: 40,
+    marginBottom: 10
   }
 });
 
