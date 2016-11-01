@@ -10,43 +10,47 @@ import {
 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
+// const dismissKeyboard = require('dismissKeyboard')
+
+
 let NZD = 0
 
 let entered = {
-  price: null,
+  price: '0',
   percentage: '18',
-  tax: '4'
+  tax: '4',
+  conversionRate: String(NZD)
 }
 
 export default class tipped extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      price: null,
+      price: '0',
       percentage: '18',
       tax: '4',
-      conversionRate: 1.39,
+      conversionRate: String(NZD),
       toTipUSD: '0',
       totalNZD: '0',
       totalUSD: '0'
     }
   }
 
-  componentDidMount () {
-    this.getRate()
-  }
-
-  getRate () {
+  getRateFromApiAsync () {
     return fetch('https://api.fixer.io/latest?base=USD&symbols=USD,NZD')
       .then((response) => response.json())
       .then((responseJson) => {
         NZD = responseJson.rates.NZD
-        this.setState({conversionRate: NZD})
+        console.log(NZD)
+        this.state = { conversionRate: NZD }
+        return responseJson.rates.NZD
       })
       .catch((error) => {
         console.error(error);
       })
   }
+
+  // getRateFromApiAsync()
 
   enterPrice (price) {
     entered.price = price
@@ -63,20 +67,31 @@ export default class tipped extends Component {
     this.calc()
   }
 
+  enterRate (conversionRate) {
+    entered.conversionRate = conversionRate
+    console.log(entered)
+    this.calc()
+  }
+
   calc () {
     let toTip = (entered.price * (entered.percentage/100)).toFixed(2)
-    let totalPriceNZD = (entered.price*(entered.percentage/100+1)*(entered.tax/100+1)*NZD).toFixed(2)
+    let totalPriceNZD = (entered.price*(entered.percentage/100+1)*(entered.tax/100+1)*(entered.conversionRate)).toFixed(2)
     let totalPriceUSD = (entered.price*(entered.percentage/100+1)*(entered.tax/100+1)).toFixed(2)
-    this.setState({
-        toTipUSD: toTip,
-        totalNZD: totalPriceNZD,
-        totalUSD: totalPriceUSD
-    })
+    this.state = {
+      price: entered.price,
+      percentage: entered.percentage,
+      tax: entered.tax,
+      conversionRate: entered.conversionRate,
+      toTipUSD: toTip,
+      totalNZD: totalPriceNZD,
+      totalUSD: totalPriceUSD
+    }
   }
 
 
   render() {
     return (
+      // <TouchableWithoutFeedback onPress={()=> dismissKeyboard()}>
       <KeyboardAwareScrollView style={[styles.scrollView, styles.horizontalScrollView]}>
         <View style={styles.container}>
         <Text style={styles.title}>TIPPING IN AMERICA</Text>
@@ -130,10 +145,20 @@ export default class tipped extends Component {
 
           <Text style={styles.heading}>Conversion rate:</Text>
           <View style={styles.item}>
-            <Text>{this.state.conversionRate}%</Text>
+            <TextInput
+              keyboardType='numeric'
+              style={styles.input}
+              onChangeText={(conversionRate) => {
+                this.setState({conversionRate})
+                this.enterRate(conversionRate)
+              }}
+              value={this.state.conversionRate}
+            />
+            <Text style={styles.heading}>%</Text>
           </View>
         </View>
       </KeyboardAwareScrollView>
+      // </TouchableWithoutFeedback>
     )
   }
 }
@@ -178,6 +203,6 @@ const styles = StyleSheet.create({
     fontSize: 40,
     marginBottom: 10
   }
-})
+});
 
 AppRegistry.registerComponent('tipped', () => tipped)
