@@ -28,7 +28,10 @@ export default class tipped extends Component {
       conversionRate: 1.39,
       toTipUSD: '0',
       totalNZD: '0',
-      totalUSD: '0'
+      totalUSD: '0',
+      totalMinusTipNZD: '0',
+      totalMinusTipUSD: '0'
+
     }
   }
 
@@ -64,13 +67,12 @@ export default class tipped extends Component {
   }
 
   calc () {
-    let toTip = (entered.price * (entered.percentage/100)).toFixed(2)
-    let totalPriceNZD = (entered.price*(entered.percentage/100+1)*(entered.tax/100+1)*NZD).toFixed(2)
-    let totalPriceUSD = (entered.price*(entered.percentage/100+1)*(entered.tax/100+1)).toFixed(2)
     this.setState({
-        toTipUSD: toTip,
-        totalNZD: totalPriceNZD,
-        totalUSD: totalPriceUSD
+        toTipUSD: (entered.price*(entered.percentage/100)).toFixed(2),
+        totalNZD: (entered.price*(entered.percentage/100+1)*(entered.tax/100+1)*NZD).toFixed(2),
+        totalUSD: (entered.price*(entered.percentage/100+1)*(entered.tax/100+1)).toFixed(2),
+        totalMinusTipNZD: (entered.price*(entered.percentage/100+1)*(entered.tax/100+1)-(entered.price*(entered.percentage/100))*NZD).toFixed(2),
+        totalMinusTipUSD: (entered.price*(entered.percentage/100+1)*(entered.tax/100+1)-(entered.price*(entered.percentage/100))).toFixed(2)
     })
   }
 
@@ -79,25 +81,24 @@ export default class tipped extends Component {
     return (
       <KeyboardAwareScrollView style={[styles.scrollView, styles.horizontalScrollView]}>
         <View style={styles.container}>
-        <Text style={styles.title}>TIPPING IN AMERICA</Text>
+        <Text style={styles.title}>💸🇺🇸💸</Text>
 
-          <Text style={styles.total}>Tip USD: ${this.state.toTipUSD}</Text>
-          <Text style={styles.total}>Total USD: ${this.state.totalUSD}</Text>
-          <Text style={styles.total}>Total NZD: ${this.state.totalNZD}</Text>
+        <View>
+          <Text style={styles.total}>Tip 🇺🇸 ${this.state.toTipUSD}</Text>
+          <Text style={styles.total}>Total−Tip 🇺🇸 ${this.state.totalMinusTipUSD}</Text>
+          <Text style={styles.total}>Total−Tip 🇳🇿 ${this.state.totalMinusTipNZD}</Text>
+          <Text style={styles.total}>Total 🇺🇸 ${this.state.totalUSD}</Text>
+          <Text style={styles.total}>Total 🇳🇿 ${this.state.totalNZD}</Text>
+        </View>
 
           <Text style={styles.heading}>Price:</Text>
           <View style={styles.item}>
-            <Text style={styles.heading}>$</Text>
             <TextInput
               keyboardType='numeric'
               style={styles.input}
-              onChangeText={(price) => {
-                this.setState({price})
-                this.enterPrice(price)
-              }}
+              onChangeText={(price) => this.enterPrice(price)}
               value={this.state.price}
             />
-            <Text style={styles.heading}>{'          '}</Text>
           </View>
 
           <Text style={styles.heading}>Tip percentage:</Text>
@@ -111,7 +112,6 @@ export default class tipped extends Component {
               }}
               value={this.state.percentage}
             />
-            <Text style={styles.heading}>%</Text>
           </View>
 
           <Text style={styles.heading}>State tax:</Text>
@@ -125,7 +125,6 @@ export default class tipped extends Component {
               }}
               value={this.state.tax}
             />
-            <Text style={styles.heading}>%</Text>
           </View>
 
           <Text style={styles.heading}>Conversion rate:</Text>
@@ -149,7 +148,8 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 20,
     flex: 1,
-    justifyContent: 'center',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: 'steelblue',
   },
@@ -159,21 +159,26 @@ const styles = StyleSheet.create({
   },
   input: {
     textAlign: 'center',
-    height: 40,
-    width: 40,
-    fontSize: 15,
-    borderColor: 'gray',
-    borderWidth: 1
+    alignItems: 'center',
+    height: 60,
+    width: 60,
+    fontSize: 25,
+    borderColor: 'black',
+    borderWidth: 1,
+  },
+  item: {
+    // width: 300,
+    // alignItems: 'center',
+    // flexWrap: 'wrap',
+    // alignItems: 'flex-start',
+    // flexDirection:'row'
   },
   total: {
     fontSize: 30,
-    margin: 5
+    margin: 5,
+    textAlign: 'right'
   },
-  item: {
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    flexDirection:'row'
-  },
+
   title: {
     fontSize: 40,
     marginBottom: 10
