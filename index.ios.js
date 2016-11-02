@@ -25,7 +25,7 @@ export default class tipped extends Component {
       price: null,
       percentage: '18',
       tax: '4',
-      conversionRate: 1.39,
+      // conversionRate: null,
       toTipUSD: '0',
       toTipNZD: '0',
       totalNZD: '0',
