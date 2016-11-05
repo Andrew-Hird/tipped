@@ -10,12 +10,11 @@ import {
 
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
 
-let NZD = 0
-
 let entered = {
   price: null,
   percentage: '18',
-  tax: '4'
+  tax: '4',
+  rate: '1.3'
 }
 
 export default class tipped extends Component {
@@ -25,27 +24,14 @@ export default class tipped extends Component {
       price: null,
       percentage: '18',
       tax: '4',
+      rate: '1.3',
       toTipUSD: '0',
       toTipNZD: '0',
       totalNZD: '0',
       totalUSD: '0',
       totalMinusTipNZD: '0',
       totalMinusTipUSD: '0'
-
     }
-  }
-
-  componentDidMount() {
-    this.getRate()
-  }
-
-  getRate() {
-    return fetch('https://api.fixer.io/latest?base=USD&symbols=USD,NZD').then((response) => response.json()).then((responseJson) => {
-      NZD = responseJson.rates.NZD
-      this.setState({conversionRate: NZD})
-    }).catch((error) => {
-      console.error(error);
-    })
   }
 
   enterPrice(price) {
@@ -63,13 +49,18 @@ export default class tipped extends Component {
     this.calc()
   }
 
+  enterRate(rate) {
+    entered.rate = rate
+    this.calc()
+  }
+
   calc() {
     this.setState({
       toTipUSD: (entered.price * (entered.percentage / 100)).toFixed(2),
-      toTipNZD: ((entered.price * (entered.percentage / 100)) * NZD).toFixed(2),
-      totalNZD: ((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1) * NZD)).toFixed(2),
+      toTipNZD: ((entered.price * (entered.percentage / 100)) * entered.rate).toFixed(2),
+      totalNZD: ((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1) * entered.rate)).toFixed(2),
       totalUSD: (entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1)).toFixed(2),
-      totalMinusTipNZD: (((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1)) - (entered.price * (entered.percentage / 100)) ) * NZD).toFixed(2),
+      totalMinusTipNZD: (((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1)) - (entered.price * (entered.percentage / 100)) ) * entered.rate).toFixed(2),
       totalMinusTipUSD: ((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1)) - (entered.price * (entered.percentage / 100))).toFixed(2)
     })
   }
@@ -125,8 +116,16 @@ export default class tipped extends Component {
 
             <View style={styles.item}>
               <Text style={styles.heading}>Conversion rate:</Text>
-              <Text style={styles.rate}>{this.state.conversionRate}%</Text>
+              <TextInput
+              keyboardType='numeric'
+              style={styles.input}
+              onChangeText={(rate) => {
+                this.setState({rate})
+                this.enterRate(rate)
+              }}
+              value={this.state.rate}/>
             </View>
+
           </View>
         </View>
       </KeyboardAwareScrollView>
