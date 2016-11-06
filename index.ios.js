@@ -12,6 +12,10 @@ import {
 
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
 
+let NZD = 0
+
+let conversionFee = '2.10'
+
 let entered = {
   price: null,
   percentage: '18',
@@ -53,14 +57,14 @@ export class Main extends Component {
   }
 	render() {
     return (
-    	<View style={ styles.container }>
- 				<TouchableHighlight style={ styles.button } onPress={ () => this._navigateCash() }>
-      		<Text style={ styles.buttonText }>Go to Cash View</Text>
-      	</TouchableHighlight>
- 				<TouchableHighlight style={ styles.button } onPress={ () => this._navigateCreditCard() }>
-      		<Text style={ styles.buttonText }>Go to Credit Card View</Text>
-      	</TouchableHighlight>
-      </View>
+      	<View style={ styles.container }>
+   				<TouchableHighlight style={ styles.button } onPress={ () => this._navigateCash() }>
+        		<Text style={ styles.buttonText }>Pay with Cash</Text>
+        	</TouchableHighlight>
+   				<TouchableHighlight style={ styles.button } onPress={ () => this._navigateCreditCard() }>
+        		<Text style={ styles.buttonText }>Pay with Credit Card</Text>
+        	</TouchableHighlight>
+        </View>
     )
   }
 }
@@ -122,10 +126,8 @@ export class Cash extends Component {
       <KeyboardAwareScrollView style={[styles.scrollView, styles.horizontalScrollView]}>
         <View style={styles.container}>
         <TouchableHighlight style={ styles.button } onPress={ () => this._navigate() }>
-      		<Text style={ styles.buttonText }>BACK</Text>
+      		<Text style={ styles.title }>back 💸🇺🇸🇳🇿</Text>
       	</TouchableHighlight>
-        <Text>CASH VIEW</Text>
-          <Text style={styles.title}>💸🇺🇸🇳🇿💸</Text>
 
           <View style={styles.allTotals}>
             <Text style={styles.totalHead}>Tip:</Text>
@@ -196,7 +198,7 @@ export class CreditCard extends Component {
       price: null,
       percentage: '18',
       tax: '4',
-      rate: '1.3',
+      conversionFee: conversionFee,
       toTipUSD: '0',
       toTipNZD: '0',
       totalNZD: '0',
@@ -204,6 +206,19 @@ export class CreditCard extends Component {
       totalMinusTipNZD: '0',
       totalMinusTipUSD: '0'
     }
+  }
+
+  componentDidMount() {
+    this.getRate()
+  }
+
+  getRate() {
+    return fetch('https://api.fixer.io/latest?base=USD&symbols=USD,NZD').then((response) => response.json()).then((responseJson) => {
+      NZD = responseJson.rates.NZD
+      this.setState({conversionRate: NZD})
+    }).catch((error) => {
+      console.error(error);
+    })
   }
 
   enterPrice(price) {
@@ -221,19 +236,14 @@ export class CreditCard extends Component {
     this.calc()
   }
 
-  enterRate(rate) {
-    entered.rate = rate
-    this.calc()
-  }
-
   calc() {
     this.setState({
-      toTipUSD: (entered.price * (entered.percentage / 100)).toFixed(2),
-      toTipNZD: ((entered.price * (entered.percentage / 100)) * entered.rate).toFixed(2),
-      totalNZD: ((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1) * entered.rate)).toFixed(2),
-      totalUSD: (entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1)).toFixed(2),
-      totalMinusTipNZD: (((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1)) - (entered.price * (entered.percentage / 100)) ) * entered.rate).toFixed(2),
-      totalMinusTipUSD: ((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1)) - (entered.price * (entered.percentage / 100))).toFixed(2)
+      toTipUSD: ((entered.price * (entered.percentage / 100)) * (conversionFee / 100 + 1)).toFixed(2),
+      toTipNZD: (((entered.price * (entered.percentage / 100)) * NZD) * (conversionFee / 100 + 1)).toFixed(2),
+      totalNZD: (((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1) * NZD)) * (conversionFee / 100 + 1)).toFixed(2),
+      totalUSD: ((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1)) * (conversionFee / 100 + 1)).toFixed(2),
+      totalMinusTipNZD: ((((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1)) - (entered.price * (entered.percentage / 100))) * NZD) * (conversionFee / 100 + 1)).toFixed(2),
+      totalMinusTipUSD: (((entered.price * (entered.percentage / 100 + 1) * (entered.tax / 100 + 1)) - (entered.price * (entered.percentage / 100))) * (conversionFee / 100 + 1)).toFixed(2)
     })
   }
 
@@ -246,10 +256,8 @@ export class CreditCard extends Component {
       <KeyboardAwareScrollView style={[styles.scrollView, styles.horizontalScrollView]}>
         <View style={styles.container}>
         <TouchableHighlight style={ styles.button } onPress={ () => this._navigate() }>
-      		<Text style={ styles.buttonText }>BACK</Text>
+      		<Text style={ styles.title }>back 💸🇺🇸🇳🇿💸</Text>
       	</TouchableHighlight>
-        <Text>CREDIT CARD VIEW</Text>
-          <Text style={styles.title}>💸🇺🇸🇳🇿💸</Text>
 
           <View style={styles.allTotals}>
             <Text style={styles.totalHead}>Tip:</Text>
@@ -296,14 +304,9 @@ export class CreditCard extends Component {
 
             <View style={styles.item}>
               <Text style={styles.heading}>Conversion rate:</Text>
-              <TextInput
-              keyboardType='numeric'
-              style={styles.input}
-              onChangeText={(rate) => {
-                this.setState({rate})
-                this.enterRate(rate)
-              }}
-              value={this.state.rate}/>
+              <Text style={styles.rate}>{this.state.conversionRate}%</Text>
+              <Text style={styles.heading}>Conversion fee:</Text>
+              <Text style={styles.rate}>{this.state.conversionFee}%</Text>
             </View>
 
           </View>
@@ -324,6 +327,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 20,
+    // height: 1136,
     alignItems: 'center',
     backgroundColor: 'steelblue'
   },
@@ -354,7 +358,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rate: {
-    marginTop: 20,
     fontSize: 25
   },
   totalHead: {
@@ -371,6 +374,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 40,
     marginBottom: 10
+  },
+  button: {
+    flex: 1,
+  	height:60,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+  	fontSize:20
   }
 })
 
