@@ -10,7 +10,7 @@ import {
   TouchableWithoutFeedback
 } from 'react-native'
 
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import styles from './Styles.js'
 

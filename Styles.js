@@ -70,5 +70,18 @@ export default StyleSheet.create({
   },
   buttonText: {
    fontSize:20
-  }
+ },
+ checkboxStyle: {
+        width: 26,
+        height: 26,
+        borderWidth: 2,
+        borderColor: '#ddd',
+        borderRadius: 5
+    },
+  containerStyle: {
+      flex: 1,
+      flexDirection: 'row',
+      padding: 20,
+      alignItems: 'center'
+  },
 })

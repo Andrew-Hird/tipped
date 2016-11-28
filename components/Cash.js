@@ -10,7 +10,10 @@ import {
   TouchableWithoutFeedback
 } from 'react-native'
 
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import CheckBox from 'react-native-checkbox'
+
+import { CheckboxField, Checkbox } from 'react-native-checkbox-field'
 
 import styles from '../Styles.js'
 
@@ -38,7 +41,8 @@ export class Cash extends Component {
       totalNZD: '0',
       totalUSD: '0',
       totalMinusTipNZD: '0',
-      totalMinusTipUSD: '0'
+      totalMinusTipUSD: '0',
+      checked: false
     }
   }
 
@@ -73,6 +77,11 @@ export class Cash extends Component {
     })
   }
 
+  checkClick() {
+    this.setState({ checked: !this.state.checked })
+    console.log('checked')
+  }
+
   _navigate() {
   	this.props.navigator.push({ name: 'tipped' })
   }
@@ -81,10 +90,17 @@ export class Cash extends Component {
     return (
       <KeyboardAwareScrollView style={[styles.scrollView, styles.horizontalScrollView]}>
         <View style={styles.container}>
+
         <TouchableHighlight style={ styles.button } onPress={ () => this._navigate() }>
       		<Text style={ styles.title }>back 💸🇺🇸🇳🇿</Text>
       	</TouchableHighlight>
 
+        <CheckBox
+          label='Tip'
+          checked={this.state.checked}
+          onChange={ () => this.checkClick() }
+        />
+        
           <View style={styles.allTotals}>
             <Text style={styles.totalHead}>Tip:</Text>
             <Text style={styles.total}>🇺🇸 ${this.state.toTipUSD} | 🇳🇿 ${this.state.toTipNZD}</Text>
