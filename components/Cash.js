@@ -42,8 +42,21 @@ export class Cash extends Component {
       totalUSD: '0',
       totalMinusTipNZD: '0',
       totalMinusTipUSD: '0',
-      checked: false
+      total: '0',
+      tipCheck: false,
+      taxCheck: false,
+      CRCheck: false
+
     }
+  }
+
+  componentDidMount() {
+    this.setState({ tipCheck: true })
+    this.setState({ taxCheck: true })
+    this.setState({ CRCheck: true })
+    this.checkTipClick()
+    this.checkTaxClick()
+    this.checkCRClick()
   }
 
   enterPrice(price) {
@@ -77,9 +90,39 @@ export class Cash extends Component {
     })
   }
 
-  checkClick() {
-    this.setState({ checked: !this.state.checked })
-    console.log('checked')
+  calc2() {
+    if(this.state.checked) {
+      console.log('checked')
+    } else {
+      console.log('un-checked')
+    }
+  }
+
+  checkTipClick() {
+    this.setState({ tipCheck: !this.state.tipCheck })
+    if(!this.state.tipCheck) {
+      console.log('tip checked')
+    } else {
+      console.log('tip un-checked')
+    }
+  }
+
+  checkTaxClick() {
+    this.setState({ taxCheck: !this.state.taxCheck })
+    if(!this.state.taxCheck) {
+      console.log('tax checked')
+    } else {
+      console.log('tax un-checked')
+    }
+  }
+
+  checkCRClick() {
+    this.setState({ CRCheck: !this.state.CRCheck })
+    if(!this.state.taxCheck) {
+      console.log('CR checked')
+    } else {
+      console.log('CR un-checked')
+    }
   }
 
   _navigate() {
@@ -97,10 +140,26 @@ export class Cash extends Component {
 
         <CheckBox
           label='Tip'
-          checked={this.state.checked}
-          onChange={ () => this.checkClick() }
+          checked={this.state.tipCheck}
+          underlayColor={'steelblue'}
+          labelStyle={styles.checkStyle}
+          onChange={ () => this.checkTipClick() }
         />
-        
+        <CheckBox
+          label='Tax'
+          checked={this.state.taxCheck}
+          underlayColor={'steelblue'}
+          labelStyle={styles.checkStyle}
+          onChange={ () => this.checkTaxClick() }
+        />
+        <CheckBox
+          label='C-Rate'
+          checked={this.state.CRCheck}
+          underlayColor={'steelblue'}
+          labelStyle={styles.checkStyle}
+          onChange={ () => this.checkCRClick() }
+        />
+
           <View style={styles.allTotals}>
             <Text style={styles.totalHead}>Tip:</Text>
             <Text style={styles.total}>🇺🇸 ${this.state.toTipUSD} | 🇳🇿 ${this.state.toTipNZD}</Text>

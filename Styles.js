@@ -14,7 +14,6 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 20,
-    // height: 1136,
     alignItems: 'center',
     backgroundColor: 'steelblue'
   },
@@ -64,24 +63,15 @@ export default StyleSheet.create({
   },
   button: {
     flex: 1,
-   height:60,
+    height:60,
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
    fontSize:20
  },
- checkboxStyle: {
-        width: 26,
-        height: 26,
-        borderWidth: 2,
-        borderColor: '#ddd',
-        borderRadius: 5
-    },
-  containerStyle: {
-      flex: 1,
-      flexDirection: 'row',
-      padding: 20,
-      alignItems: 'center'
+ checkStyle: {
+  color: 'black',
+  fontSize: 20
   },
 })
